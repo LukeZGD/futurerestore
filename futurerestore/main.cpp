@@ -37,6 +37,7 @@ static struct option longopts[] = {
 #ifdef HAVE_LIBIPATCHER
     { "use-pwndfu",         no_argument,            NULL, '3' },
     { "just-boot",          optional_argument,      NULL, '4' },
+    { "skip-blob",          no_argument,            NULL, 'f' },
 #endif
     { NULL, 0, NULL, 0 }
 };
@@ -47,6 +48,7 @@ static struct option longopts[] = {
 #define FLAG_LATEST_BASEBAND    1 << 3
 #define FLAG_NO_BASEBAND        1 << 4
 #define FLAG_IS_PWN_DFU         1 << 5
+#define FLAG_SKIP_BLOB          1 << 6
 
 void cmd_help(){
     printf("Usage: futurerestore [OPTIONS] IPSW\n");
@@ -148,6 +150,9 @@ int main(int argc, const char * argv[]) {
             case '4': // long option: "just-boot";
                 bootargs = (optarg) ? optarg : "";
                 break;
+            case 'f': // long option: "skip-blob";
+                flags |= FLAG_SKIP_BLOB;
+                break;
             break;
 #endif
             case 'd': // long option: "debug"; can be called as short option
@@ -185,7 +190,11 @@ int main(int argc, const char * argv[]) {
     
     try {
         if (apticketPaths.size()) client.loadAPTickets(apticketPaths);
-        
+
+        if(flags & FLAG_SKIP_BLOB) {
+            client.skipBlobValidation();
+        }
+
         if (!(
               ((apticketPaths.size() && ipsw)
                && ((basebandPath && basebandManifestPath) || ((flags & FLAG_LATEST_BASEBAND) || (flags & FLAG_NO_BASEBAND)))

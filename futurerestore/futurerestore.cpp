@@ -590,7 +590,7 @@ int futurerestore::doRestore(const char *ipsw){
     
     client->image4supported = is_image4_supported(client);
     info("Device supports Image4: %s\n", (client->image4supported) ? "true" : "false");
-    
+
     if (_enterPwnRecoveryRequested) //we are in pwnDFU, so we don't need to check nonces
         client->tss = _aptickets.at(0);
     else if (!(client->tss = nonceMatchesApTickets()))
@@ -598,7 +598,7 @@ int futurerestore::doRestore(const char *ipsw){
     
     plist_dict_remove_item(client->tss, "BBTicket");
     plist_dict_remove_item(client->tss, "BasebandFirmware");
-    
+
     if (!(build_identity = getBuildidentityWithBoardconfig(buildmanifest, client->device->hardware_model, _isUpdateInstall)))
         reterror(-5,"ERROR: Unable to find any build identities for IPSW\n");
 
@@ -643,11 +643,13 @@ int futurerestore::doRestore(const char *ipsw){
         plist_t ticketIdentity = getBuildIdentityForIM4M(im4m, buildmanifest);
         //TODO: make this nicer!
         //for now a simple pointercompare should be fine, because both plist_t should point into the same buildidentity inside the buildmanifest
-        if (ticketIdentity != build_identity ){
+        if (_skipBlob) {
+            info("[WARNING] Not validating APTicket IM4M\n");
+        }else if (ticketIdentity != build_identity){
             error("BuildIdentity selected for restore does not match APTicket\n\n");
             printf("BuildIdentity selected for restore:\n");
             printGeneralBuildIdentityInformation(build_identity);
-            printf("\nBuildIdentiy valid for the APTicket:\n");
+            printf("\nBuildIdentity valid for the APTicket:\n");
             
             if (ticketIdentity) printGeneralBuildIdentityInformation(ticketIdentity),putchar('\n');
             else{
@@ -867,7 +869,7 @@ int futurerestore::doRestore(const char *ipsw){
     if (_enterPwnRecoveryRequested){ //if pwnrecovery send all components decrypted, unless we're dealing with iOS 10
         if (strncmp(client->version, "10.", 3))
             client->recovery_custom_component_function = get_custom_component;
-    }else if (!_rerestoreiOS9){
+    }else if (!_rerestoreiOS9 && !_skipBlob){
         /* now we load the iBEC */
         if (recovery_send_ibec(client, build_identity) < 0) {
             reterror(-8,"ERROR: Unable to send iBEC\n");
