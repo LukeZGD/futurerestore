@@ -59,6 +59,7 @@ class futurerestore {
     const char *_sepbuildmanifestPath = NULL;
     const char *_basebandbuildmanifestPath = NULL;
     
+    bool _skipBlob = false;
     bool _enterPwnRecoveryRequested = false;
     bool _rerestoreiOS9 = false;
     //methods
@@ -100,6 +101,7 @@ public:
     const char *sepManifestPath(){return _sepbuildmanifestPath;};
     const char *basebandManifestPath(){return _basebandbuildmanifestPath;};
     bool is32bit(){return !is_image4_supported(_client);};
+    void skipBlobValidation(){_skipBlob = true;};
     
     
     uint64_t getBasebandGoldCertIDFromDevice();

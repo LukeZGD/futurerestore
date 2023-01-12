@@ -1,0 +1,15 @@
+name: Compile futurerestore
+on: [push]
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run compile script
+        run: ./compile.sh old
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: futurerestore_linux
+          path: bin/
