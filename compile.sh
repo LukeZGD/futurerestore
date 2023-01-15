@@ -226,7 +226,6 @@ if [[ $OSTYPE == "linux"* ]]; then
         cd $FR_BASE
         curl -LO https://github.com/facebook/zstd/releases/download/v1.5.2/zstd-1.5.2.tar.gz
         tar -zxvf zstd-1.5.2.tar.gz
-        cd zstd-1.5.2
         mkdir builddir
         cmake -B builddir \
             -DCMAKE_BUILD_TYPE=Release \
@@ -236,7 +235,7 @@ if [[ $OSTYPE == "linux"* ]]; then
             -DZSTD_BUILD_TESTS=ON \
             zstd-1.5.2/build/cmake
         cmake --build builddir
-        cmake --install
+        cmake --install builddir
     fi
 
     cd $FR_BASE
@@ -244,7 +243,7 @@ if [[ $OSTYPE == "linux"* ]]; then
     cd futurerestore
     ./autogen.sh $ALT_CONF_ARGS $CC_ARGS LDFLAGS="$LD_ARGS" LIBS="-llzma -lbz2 -lzstd -lcrypto -lz -ldl"
     make $JNUM
-    cp futurerestore/futurerestore ../../bin/futurerestore_$platform
+    cp futurerestore/futurerestore ../../bin/futurerestore_$1_$platform
 
 elif [[ $OSTYPE == "msys" ]]; then
     platform="win"
@@ -429,7 +428,7 @@ elif [[ $OSTYPE == "msys" ]]; then
     else
         make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     fi
-    cp futurerestore/futurerestore ../../bin/futurerestore_$platform
+    cp futurerestore/futurerestore ../../bin/futurerestore_$1_$platform
 fi
 
 echo "Done!"
