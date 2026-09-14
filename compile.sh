@@ -10,7 +10,6 @@ cd tmp
 
 set -e
 
-sslver="3.0.7"
 if [[ $OSTYPE == "linux"* ]]; then
     platform="linux"
     echo "* Platform: Linux"
@@ -54,8 +53,8 @@ if [[ $OSTYPE == "linux"* ]]; then
 
     echo "Downloading apt deps"
     sudo apt update
-    #sudo apt remove -y libssl-dev libssl3
-    sudo apt install aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake zlib1g-dev libbz2-dev libusb-1.0-0-dev libusb-dev libpng-dev libreadline-dev libcurl4-openssl-dev libzstd-dev liblzma-dev -y
+    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libusb-dev libpng-dev libreadline-dev python3-dev autopoint
+    sudo apt remove -y libssl-dev libzstd-dev || true # comment line for ssl3
     if [[ $(uname -m) != "a"* ]]; then
         curl -LO https://apt.llvm.org/llvm.sh
         chmod 0755 llvm.sh
@@ -64,46 +63,37 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Done"
 
     echo "Cloning git repos and other deps"
-    git clone https://github.com/lzfse/lzfse
-    git clone https://github.com/libimobiledevice/libplist
-    git clone https://github.com/libimobiledevice/libusbmuxd
-    git clone https://github.com/libimobiledevice/libimobiledevice
-    git clone https://github.com/libimobiledevice/libirecovery
-    #git clone https://github.com/libimobiledevice/libideviceactivation
-    #git clone https://github.com/libimobiledevice/libideviceinstaller
-    #git clone https://github.com/libimobiledevice/ifuse
-    git clone https://github.com/nih-at/libzip
-    git clone https://github.com/tihmstar/libgeneral
-    git clone https://github.com/tihmstar/libfragmentzip
+    git clone --filter=blob:none https://github.com/lzfse/lzfse
+    git clone --filter=blob:none https://github.com/libimobiledevice/libplist
+    git clone --filter=blob:none https://github.com/libimobiledevice/libimobiledevice-glue
+    git clone --filter=blob:none https://github.com/libimobiledevice/libtatsu
+    git clone --filter=blob:none https://github.com/LukeZGD/libusbmuxd
+    git clone --filter=blob:none https://github.com/LukeZGD/libimobiledevice
+    git clone --filter=blob:none https://github.com/LukeZGD/libirecovery
+    # git clone --filter=blob:none https://github.com/libimobiledevice/idevicerestore # uncomment line for latest idr
+    git clone --filter=blob:none https://github.com/nih-at/libzip -b v1.11.4
+    # 7_65_3 for old ssl, 8_17_0 for pre-3.0 ssl, 8_21_0 for latest
+    git clone --filter=blob:none https://github.com/curl/curl -b curl-7_65_3
+    aria2c="aria2c -c -s 16 -x 16 -k 1M -j 1"
+    $aria2c https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
     if [[ $1 == "old" ]]; then
-        git clone --recursive https://github.com/LukeZGD/libipatcher
-        git clone --recursive https://github.com/LukeZGD/futurerestore
-        git clone https://github.com/LukeZGD/daibutsuCFW
+        git clone --filter=blob:none --recursive https://github.com/LukeZGD/libipatcher
+        git clone --filter=blob:none https://github.com/LukeZGD/daibutsuCFW
     elif [[ $1 == "new" ]]; then
-        git clone https://github.com/tihmstar/img4tool
-        git clone --recursive https://github.com/LukeeGD/futurerestore
+        git clone --filter=blob:none https://github.com/tihmstar/img4tool
     fi
-    aria2c https://www.openssl.org/source/openssl-$sslver.tar.gz
-    aria2c https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
-    aria2c https://github.com/facebook/zstd/releases/download/v1.5.2/zstd-1.5.2.tar.gz
+    git clone --filter=blob:none https://github.com/tihmstar/libgeneral
+    git clone --filter=blob:none https://github.com/tihmstar/libfragmentzip
 
-    : '
-    echo "Building openssl..."
-    tar -zxvf openssl-$sslver.tar.gz
-    cd openssl-$sslver
-    if [[ $(uname -m) == "a"* && $(getconf LONG_BIT) == 64 ]]; then
-        env $CC_ARGS ./Configure enable-ktls linux-aarch64 "-Wa,--noexecstack -fPIC"
-    elif [[ $(uname -m) == "a"* ]]; then
-        env $CC_ARGS ./Configure enable-ktls linux-generic32 "-Wa,--noexecstack -fPIC"
-    else
-        env $CC_ARGS ./Configure enable-ktls enable-ec_nistp_64_gcc_128 linux-x86_64 "-Wa,--noexecstack -fPIC"
-    fi
-    make $JNUM depend $CC_ARGS
-    make $JNUM $CC_ARGS
-    make install_sw install_ssldirs
-    rm -rf /usr/local/lib/libcrypto.so* /usr/local/lib/libssl.so*
-    cd ..
-    '
+    # comment section for ssl3
+    sslver="2.2.9"
+    $aria2c https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-$sslver.tar.gz
+    echo "Building libressl..."
+    tar -zxvf libressl-$sslver.tar.gz
+    cd libressl-$sslver
+    ./configure
+    make $JNUM
+    make install
 
     echo "Building lzfse..."
     cd $FR_BASE
@@ -114,12 +104,28 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Building libplist..."
     cd $FR_BASE
     cd libplist
-    if [[ $1 == "new" ]]; then
-        git reset --hard 787a449
-    else
-        git reset --hard ec9ba8b
-    fi
-    git clean -fxd
+    ./autogen.sh $CONF_ARGS $CC_ARGS
+    make $JNUM
+    make $JNUM install
+
+    echo "Building libimobiledevice-glue..."
+    cd $FR_BASE
+    cd libimobiledevice-glue
+    ./autogen.sh $CONF_ARGS $CC_ARGS
+    make $JNUM
+    make $JNUM install
+
+    echo "Building curl..."
+    cd $FR_BASE
+    cd curl
+    autoreconf -fi
+    ./configure --disable-werror --disable-shared --with-openssl --without-libpsl
+    make $JNUM
+    make $JNUM install
+
+    echo "Building libtatsu..."
+    cd $FR_BASE
+    cd libtatsu
     ./autogen.sh $CONF_ARGS $CC_ARGS
     make $JNUM
     make $JNUM install
@@ -127,13 +133,6 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Building libusbmuxd..."
     cd $FR_BASE
     cd libusbmuxd
-    if [[ $1 == "new" ]]; then
-        git reset --hard 3eb50a0
-    else
-        git reset --hard c724e70
-    fi
-    git reset --hard
-    git clean -fxd
     ./autogen.sh $CONF_ARGS $CC_ARGS
     make $JNUM
     make $JNUM install
@@ -141,12 +140,6 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Building libimobiledevice..."
     cd $FR_BASE
     cd libimobiledevice
-    if [[ $1 == "new" ]]; then
-        git reset --hard ca32415
-    else
-        git reset --hard 3447295
-    fi
-    git clean -fxd
     ./autogen.sh $CONF_ARGS $CC_ARGS LIBS="-L/usr/local/lib -lz -ldl"
     make $JNUM
     make $JNUM install
@@ -154,12 +147,6 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Building libirecovery..."
     cd $FR_BASE
     cd libirecovery
-    if [[ $1 == "new" ]]; then
-        git reset --hard 4793494
-    else
-        git reset --hard f78fc4a
-    fi
-    git clean -fxd
     ./autogen.sh $CONF_ARGS $CC_ARGS
     make $JNUM
     make $JNUM install
@@ -180,14 +167,12 @@ if [[ $OSTYPE == "linux"* ]]; then
     make $JNUM install
 
     if [[ $1 == "old" ]]; then
-        if [[ $(uname -m) == "x86_64" ]]; then
-            curl -LO https://github.com/LukeZGD/daibutsuCFW/releases/download/latest/xpwn_linux.zip
-            unzip xpwn_linux.zip -d .
-            cp bin/libxpwn.a bin/libcommon.a /usr/local/lib
-            cd $FR_BASE
-            cd daibutsuCFW/src/xpwn/include
-            cp -R * /usr/local/include
-        fi
+        aria2c https://github.com/LukeZGD/daibutsuCFW/releases/download/latest/xpwn_linux-$(uname -m).zip
+        unzip xpwn_linux-$(uname -m).zip -d .
+        cp bin/libxpwn.a bin/libcommon.a /usr/local/lib
+        cd $FR_BASE
+        cd daibutsuCFW/src/xpwn/include
+        cp -R * /usr/local/include
 
         cd $FR_BASE
         echo "Building libipatcher..."
@@ -222,28 +207,29 @@ if [[ $OSTYPE == "linux"* ]]; then
         make clean
     fi
 
-    if [[ $(uname -m) == "a"* ]]; then
-        cd $FR_BASE
-        curl -LO https://github.com/facebook/zstd/releases/download/v1.5.2/zstd-1.5.2.tar.gz
-        tar -zxvf zstd-1.5.2.tar.gz
-        mkdir builddir
-        cmake -B builddir \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=/usr/local \
-            -DCMAKE_INSTALL_LIBDIR=lib \
-            -DZSTD_BUILD_CONTRIB=ON \
-            -DZSTD_BUILD_TESTS=ON \
-            zstd-1.5.2/build/cmake
-        cmake --build builddir
-        cmake --install builddir
-    fi
-
     cd $FR_BASE
+    zstd_ver=1.5.7
+    aria2c https://github.com/facebook/zstd/releases/download/v$zstd_ver/zstd-$zstd_ver.tar.gz
+    tar -zxvf zstd-$zstd_ver.tar.gz
+    mkdir builddir
+    cmake -B builddir \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DZSTD_BUILD_CONTRIB=ON \
+        -DZSTD_BUILD_TESTS=ON \
+        zstd-$zstd_ver/build/cmake
+    cmake --build builddir
+    cmake --install builddir
+
     echo "Building futurerestore!"
-    cd futurerestore
+    cd $FR_BASE
+    cd ..
     ./autogen.sh $ALT_CONF_ARGS $CC_ARGS LDFLAGS="$LD_ARGS" LIBS="-llzma -lbz2 -lzstd -lcrypto -lz -ldl"
     make $JNUM
-    cp futurerestore/futurerestore ../../bin/futurerestore_$1_$platform
+    mkdir -p bin/lib
+    cp futurerestore/futurerestore bin/futurerestore_$1
+    cp /usr/local/lib/libcrypto.so.35 /usr/local/lib/libssl.so.35 bin/lib/
 
 elif [[ $OSTYPE == "msys" ]]; then
     platform="win"
@@ -258,46 +244,24 @@ elif [[ $OSTYPE == "msys" ]]; then
     export BEGIN_LDFLAGS="-Wl,--allow-multiple-definition"
 
     echo "Cloning git repos and other deps"
-    git clone https://github.com/libimobiledevice/libplist
-    git clone https://github.com/libimobiledevice/libusbmuxd
-    git clone https://github.com/libimobiledevice/libimobiledevice
-    git clone https://github.com/libimobiledevice/libirecovery
-    git clone https://github.com/tihmstar/libgeneral
-    git clone https://github.com/tihmstar/libfragmentzip
-    git clone https://github.com/tihmstar/img4tool
-    git clone --recursive https://github.com/LukeeGD/futurerestore
-    git clone https://github.com/lzfse/lzfse
-    git clone https://github.com/madler/zlib
+    git clone --filter=blob:none https://github.com/libimobiledevice/libplist
+    git clone --filter=blob:none https://github.com/libimobiledevice/libusbmuxd
+    git clone --filter=blob:none https://github.com/libimobiledevice/libimobiledevice
+    git clone --filter=blob:none https://github.com/libimobiledevice/libirecovery
+    git clone --filter=blob:none https://github.com/madler/zlib
     wget https://github.com/curl/curl/archive/refs/tags/curl-7_76_1.zip
-
-    cd libgeneral
-    git reset --hard b04a27d
-    # libgeneral windows fix (allocate memory manually because windows does not support vasprintf)
-    sed -i'' 's|vasprintf(&_err, err, ap);|_err=(char*)malloc(1024);vsprintf(_err, err, ap);|' ./libgeneral/exception.cpp
-    cd ..
-    sed -i'' 's|../include/img4tool/img4tool.hpp|#include "../include/img4tool/img4tool.hpp"|' ./img4tool/img4tool/img4tool.hpp
-    sed -i'' 's|../include/img4tool/ASN1DERElement.hpp|#include "../include/img4tool/ASN1DERElement.hpp"|' ./img4tool/img4tool/ASN1DERElement.hpp
-    # code borrowed from https://gist.github.com/foxik384/496928d2785e9007d2b838cfa6e019ee
-    sed -i'' 's|#include <arpa/inet.h>|#include <winsock2.h>\nvoid* memmem(const void* haystack, size_t haystackLen, const void* needle, size_t needleLen) { if (needleLen == 0 \|\| haystack == needle) { return (void*)haystack; } if (haystack == NULL \|\| needle == NULL) { return NULL; } const unsigned char* haystackStart = (const unsigned char*)haystack; const unsigned char* needleStart = (const unsigned char*)needle; const unsigned char needleEndChr = *(needleStart + needleLen - 1); ++haystackLen; for (; --haystackLen >= needleLen; ++haystackStart) { size_t x = needleLen; const unsigned char* n = needleStart; const unsigned char* h = haystackStart; if (*haystackStart != *needleStart \|\| *(haystackStart + needleLen - 1) != needleEndChr) { continue; } while (--x > 0) { if (*h++ != *n++) { break; } } if (x == 0) { return (void*)haystackStart; } } return NULL; }|' ./img4tool/img4tool/lzssdec.c
-    sed -i'' 's|#include <arpa/inet.h>|#include <winsock2.h>|' ./img4tool/img4tool/img4tool.cpp
-    # libfragmentzip windows fix (fix file corruption)
-    sed -i'' 's|fopen(savepath, \"w\")|fopen(savepath, \"wb\")|' ./libfragmentzip/libfragmentzip/libfragmentzip.c
 
     if [[ $STATIC == 1 ]]; then
         export STATIC_FLAG="--enable-static --disable-shared"
         export BEGIN_LDFLAGS="$BEGIN_LDFLAGS -all-static"
 
-        git clone https://github.com/google/brotli
+        git clone --filter=blob:none https://github.com/google/brotli
         wget https://ftp.gnu.org/gnu/libunistring/libunistring-0.9.10.tar.gz
         wget https://ftp.gnu.org/gnu/libidn/libidn2-2.3.0.tar.gz
         wget https://github.com/rockdaboot/libpsl/releases/download/0.21.1/libpsl-0.21.1.tar.gz
         wget https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
         wget https://tukaani.org/xz/xz-5.2.4.tar.gz
         wget https://libzip.org/download/libzip-1.5.1.tar.gz
-
-        cd ./lzfse
-        make install LDFLAGS="$BEGIN_LDFLAGS" INSTALL_PREFIX=/mingw64
-        cd ..
 
         echo "Building brotli..."
         cd brotli
@@ -396,39 +360,16 @@ elif [[ $OSTYPE == "msys" ]]; then
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS -ltermcap"
     cd ..
 
-    cd ./libgeneral
-    ./autogen.sh $STATIC_FLAG
-    make install LDFLAGS="$BEGIN_LDFLAGS"
+    echo "Building idevicerestore!"
     cd ..
-
-
-    cd ./libfragmentzip
-    if [ $IS_STATIC == 1 ]; then
-        export curl_LIBS="$(curl-config --static-libs)"
-    fi
-    ./autogen.sh $STATIC_FLAG
-    make install LDFLAGS="$BEGIN_LDFLAGS"
-    cd ..
-
-    cd ./img4tool
-    ./autogen.sh $STATIC_FLAG
-    make install LDFLAGS="$BEGIN_LDFLAGS -lws2_32"
-    cd ..
-
-    echo "Building futurerestore!"
-    cd ./futurerestore
-    # tsschecker windows fixes (fix file corruption)
-    sed -i'' 's|fopen(dstPath, \"w\")|fopen(dstPath, \"wb\")|' external/tsschecker/tsschecker/download.c
-    sed -i'' 's|fopen(fname, \"w\")|fopen(fname, \"wb\")|' external/tsschecker/tsschecker/tsschecker.c
     ./autogen.sh $STATIC_FLAG
     if [[ $STATIC == 1 ]]; then
         export curl_LIBS="$(curl-config --static-libs)"
-        #make $JNUM install CFLAGS="-DCURL_STATICLIB" LDFLAGS="$BEGIN_LDFLAGS" LIBS="-llzma -lbz2 -lbcrypt"
-        make CFLAGS="-DCURL_STATICLIB" LDFLAGS="$BEGIN_LDFLAGS" libgeneral_LIBS="-lbcrypt -lws2_32 -llzma -lbz2 -liconv -lunistring -lnghttp2"
+        make $JNUM install CFLAGS="-DCURL_STATICLIB" LDFLAGS="$BEGIN_LDFLAGS" LIBS="-llzma -lbz2 -lbcrypt"
     else
         make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     fi
-    cp futurerestore/futurerestore ../../bin/futurerestore_$1_$platform
+    cp /mingw64/bin/idevicerestore bin/idevicerestore_$platform
 fi
 
 echo "Done!"
