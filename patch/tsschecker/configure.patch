@@ -1,0 +1,8 @@
+37c37
+< PKG_CHECK_MODULES(libplist, libplist >= 1.0)
+---
+> PKG_CHECK_MODULES(libplist, libplist-2.0 >= 1.0)
+43c43
+< PKG_CHECK_MODULES(libirecovery, libirecovery >= 0.2.0)
+---
+> PKG_CHECK_MODULES(libirecovery, libirecovery-1.0 >= 0.2.0)

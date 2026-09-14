@@ -225,9 +225,12 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Building futurerestore!"
     cd $FR_BASE
     cd ..
-    patch external/idevicerestore/configure.ac external/configure.patch
-    patch external/idevicerestore/src/dfu.c external/dfu.patch
-    patch external/idevicerestore/src/recovery.c external/recovery.patch
+    patch external/idevicerestore/configure.ac patch/idevicerestore/configure.patch
+    patch external/idevicerestore/src/dfu.c patch/idevicerestore/dfu.patch
+    patch external/idevicerestore/src/recovery.c patch/idevicerestore/recovery.patch
+    patch external/idevicerestore/src/tss.c patch/idevicerestore/tss.patch
+    patch external/img4tool/configure.ac patch/img4tool/configure.patch
+    patch external/tsschecker/configure.ac patch/tsschecker/configure.patch
     ./autogen.sh $ALT_CONF_ARGS $CC_ARGS LDFLAGS="$LD_ARGS" LIBS="-llzma -lbz2 -lzstd -lcrypto -lz -ldl"
     make $JNUM
     mkdir -p bin/lib

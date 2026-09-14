@@ -1,0 +1,12 @@
+765,766c765,766
+< 		"https://17.171.36.30/TSS/controller?action=2",
+< 		"https://17.151.36.30/TSS/controller?action=2",
+---
+> 		"https://17.111.103.65/TSS/controller?action=2",
+> 		"https://17.111.103.15/TSS/controller?action=2",
+768,769c768,769
+< 		"http://17.171.36.30/TSS/controller?action=2",
+< 		"http://17.151.36.30/TSS/controller?action=2"
+---
+> 		"http://17.111.103.65/TSS/controller?action=2",
+> 		"http://17.111.103.15/TSS/controller?action=2"

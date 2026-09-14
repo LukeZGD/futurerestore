@@ -1,0 +1,4 @@
+16c16
+< PKG_CHECK_MODULES(libplist, libplist >= 1.0)
+---
+> PKG_CHECK_MODULES(libplist, libplist-2.0 >= 1.0)
