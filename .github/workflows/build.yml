@@ -21,22 +21,22 @@ jobs:
       - name: Run compile script
         run: ./compile.sh new
 
-      - uses: actions/upload-artifact@v7
-        with:
-          name: futurerestore_new_linux-${{ matrix.arch.name }}
-          path: bin/
+      # - uses: actions/upload-artifact@v7
+      #   with:
+      #     name: futurerestore_new_linux-${{ matrix.arch.name }}
+      #     path: bin/
 
-      # - name: Zip futurerestore
-      #   run: zip -r futurerestore_new_linux-${{ matrix.arch.name }}.zip bin/
+      - name: Zip futurerestore
+        run: zip -r futurerestore_new_linux-${{ matrix.arch.name }}.zip bin/
 
-      # - name: Update latest release
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   run: |
-      #     gh release upload latest \
-      #       futurerestore_new_linux-${{ matrix.arch.name }}.zip \
-      #       --clobber -R ${{ github.repository }}
-      #
-      #     gh release edit latest \
-      #       --title "Latest" \
-      #       --target ${{ github.sha }} -R ${{ github.repository }}
+      - name: Update latest release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload latest \
+            futurerestore_new_linux-${{ matrix.arch.name }}.zip \
+            --clobber -R ${{ github.repository }}
+
+          gh release edit latest \
+            --title "Latest" \
+            --target ${{ github.sha }} -R ${{ github.repository }}
