@@ -21,13 +21,8 @@ if [[ $OSTYPE == "linux"* ]]; then
     # based on Cryptiiiic's futurerestore static linux compile script
     export DIR=$(pwd)
     export FR_BASE="$DIR"
-    if [[ $(uname -m) == "a"* ]]; then
-        export CC_ARGS="CC=/usr/bin/gcc CXX=/usr/bin/g++ LD=/usr/bin/ld RANLIB=/usr/bin/ranlib AR=/usr/bin/ar"
-        export ALT_CC_ARGS="CC=/usr/bin/gcc CXX=/usr/bin/g++ LD=/usr/bin/ld RANLIB=/usr/bin/ranlib AR=/usr/bin/ar"
-    else
-        export CC_ARGS="CC=/usr/bin/clang-14 CXX=/usr/bin/clang++-14 LD=/usr/bin/ld64.lld-14 RANLIB=/usr/bin/ranlib AR=/usr/bin/ar"
-        export ALT_CC_ARGS="CC=/usr/bin/clang-14 CXX=/usr/bin/clang++-14 LD=/usr/bin/ld.lld-14 RANLIB=/usr/bin/ranlib AR=/usr/bin/ar"
-    fi
+    export CC_ARGS="CC=/usr/bin/gcc CXX=/usr/bin/g++ LD=/usr/bin/ld RANLIB=/usr/bin/ranlib AR=/usr/bin/ar"
+    export ALT_CC_ARGS="CC=/usr/bin/gcc CXX=/usr/bin/g++ LD=/usr/bin/ld RANLIB=/usr/bin/ranlib AR=/usr/bin/ar"
     export CONF_ARGS="--disable-dependency-tracking --disable-silent-rules --prefix=/usr/local --disable-shared --enable-debug --without-cython"
     export ALT_CONF_ARGS="--disable-dependency-tracking --disable-silent-rules --prefix=/usr/local"
     if [[ $(uname -m) == "a"* && $(getconf LONG_BIT) == 64 ]]; then
@@ -53,13 +48,8 @@ if [[ $OSTYPE == "linux"* ]]; then
 
     echo "Downloading apt deps"
     sudo apt update
-    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libusb-dev libpng-dev libreadline-dev python3-dev autopoint
+    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libpng-dev libreadline-dev python3-dev autopoint
     sudo apt remove -y libssl-dev libzstd-dev || true # comment line for ssl3
-    if [[ $(uname -m) != "a"* ]]; then
-        curl -LO https://apt.llvm.org/llvm.sh
-        chmod 0755 llvm.sh
-        sudo ./llvm.sh 14
-    fi
     echo "Done"
 
     echo "Cloning git repos and other deps"
