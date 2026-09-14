@@ -27,9 +27,9 @@ chmod +x llvm.sh
 ln -sf /usr/bin/ld.lld-15 /usr/bin/ld
 ln -sf /usr/bin/clang-15 /usr/bin/clang
 ln -sf /usr/bin/clang++-15 /usr/bin/clang++
-curl -sO https://cdn.cryptiiiic.com/bootstrap/linux_fix.tar.zst &
-curl -sO https://cdn.cryptiiiic.com/deps/static/Linux/x86_64/Linux_x86_64_1680647257_Debug.tar.zst &
-curl -sO https://cdn.cryptiiiic.com/deps/static/Linux/x86_64/Linux_x86_64_1680647257_Release.tar.zst &
+curl -sO -k https://cdn.cryptiiiic.com/bootstrap/linux_fix.tar.zst &
+curl -sO -k https://cdn.cryptiiiic.com/deps/static/Linux/x86_64/Linux_x86_64_1680647257_Debug.tar.zst &
+curl -sO -k https://cdn.cryptiiiic.com/deps/static/Linux/x86_64/Linux_x86_64_1680647257_Release.tar.zst &
 curl -sLO https://github.com/Kitware/CMake/releases/download/v3.23.2/cmake-3.23.2-linux-x86_64.tar.gz &
 wait
 rm -rf ${DEP_ROOT}/{lib,include} || true
