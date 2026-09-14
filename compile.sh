@@ -225,6 +225,7 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Building futurerestore!"
     cd $FR_BASE
     cd ..
+    patch external/idevicerestore/configure.ac external/configure.patch
     patch external/idevicerestore/src/dfu.c external/dfu.patch
     patch external/idevicerestore/src/recovery.c external/recovery.patch
     ./autogen.sh $ALT_CONF_ARGS $CC_ARGS LDFLAGS="$LD_ARGS" LIBS="-llzma -lbz2 -lzstd -lcrypto -lz -ldl"
