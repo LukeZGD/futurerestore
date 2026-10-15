@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - main2
       - dev
       - dev2
   pull_request:
