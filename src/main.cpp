@@ -58,6 +58,7 @@ static struct option longopts[] = {
         { "no-cache",                   no_argument,            nullptr, 'a' },
         { "skip-blob",                  no_argument,            nullptr, 'f' },
         { "skip-blob2",                 no_argument,            nullptr, 'l' },
+        { "skip-cryptex",               no_argument,            nullptr, 'n' },
 #endif
         { nullptr, 0, nullptr, 0 }
 };
@@ -84,6 +85,7 @@ static struct option longopts[] = {
 #define FLAG_NO_RSEP_FR             1 << 19
 #define FLAG_IGNORE_BB_FAIL         1 << 20
 #define FLAG_SKIP_BLOB2             1 << 21
+#define FLAG_SKIP_CRYPTEX           1 << 22
 
 bool manual = false;
 
@@ -287,6 +289,9 @@ int main_r(int argc, const char * argv[]) {
             case 'l': // long option: "skip-blob2";
                 flags |= FLAG_SKIP_BLOB2;
                 break;
+            case 'n': // long option: "skip-cryptex";
+                flags |= FLAG_SKIP_CRYPTEX;
+                break;
 #endif
             case 'e': // long option: "exit-recovery"; can be called as short option
                 exitRecovery = true;
@@ -420,6 +425,9 @@ int main_r(int argc, const char * argv[]) {
         }
         if(flags & FLAG_SKIP_BLOB2) {
             client.skipBlobValidation2();
+        }
+        if(flags & FLAG_SKIP_CRYPTEX) {
+            client.skipCryptex();
         }
         if(!(flags & FLAG_SET_NONCE)) {
             if (flags & FLAG_LATEST_SEP) {

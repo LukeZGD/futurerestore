@@ -2590,7 +2590,7 @@ void futurerestore::downloadLatestFirmwareComponents() {
         downloadLatestBaobab();
     if (elemExists("Yonkers,PatchEpoch", manifeststr, getDeviceBoardNoCopy(), 0))
         downloadLatestYonkers();
-    if (elemExists("Cryptex1,SystemOS", manifeststr, getDeviceBoardNoCopy(), 0))
+    if (elemExists("Cryptex1,SystemOS", manifeststr, getDeviceBoardNoCopy(), 0) && !_skipCryptex)
         downloadLatestCryptex1();
     info("Finished downloading the latest firmware components!\n");
 }
