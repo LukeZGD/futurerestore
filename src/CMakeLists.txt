@@ -82,7 +82,10 @@ else()
             imobiledevice-1.0
             irecovery-1.0
             usbmuxd-2.0
-            pthread)
+            pthread
+            bz2
+            lzma
+            brotli)
     endif()
     if("${CMAKE_HOST_SYSTEM_NAME}" MATCHES "Darwin")
         target_link_libraries(futurerestore PRIVATE
