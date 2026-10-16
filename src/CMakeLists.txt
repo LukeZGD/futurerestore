@@ -38,10 +38,10 @@ if(NOT NO_PKGCFG)
         png16
         crypto
         ssl
+        img4tool
+        fragmentzip
         general
         plist-2.0
-        fragmentzip
-        img4tool
         tsschecker
         idevicerestore
         jssy
