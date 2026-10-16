@@ -9,24 +9,58 @@ target_include_directories(futurerestore PRIVATE
         "${CMAKE_SOURCE_DIR}/external/tsschecker/tsschecker")
 set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}")
 if(NOT NO_PKGCFG)
+    find_package(PkgConfig REQUIRED)
+
     pkg_check_modules(DEPS REQUIRED
-            libzip
-            zlib
-            libpng16
-            libcrypto
-            libssl
-            libplist-2.0
-            libimobiledevice-glue-1.0
-            libimobiledevice-1.0
-            libirecovery-1.0
-            libusbmuxd-2.0
-            libgeneral
-            libcurl
-            libfragmentzip
-            libimg4tool)
-    target_include_directories(futurerestore PRIVATE "${DEPS_INCLUDE_DIRS}")
-    target_link_directories(futurerestore PRIVATE "${DEPS_LIBRARY_DIRS}")
-    target_link_libraries(futurerestore PRIVATE "${DEPS_LIBRARIES}" tsschecker idevicerestore)
+        libzip
+        zlib
+        libpng16
+        libcrypto
+        libssl
+        libplist-2.0
+        libimobiledevice-glue-1.0
+        libimobiledevice-1.0
+        libirecovery-1.0
+        libusbmuxd-2.0
+        libgeneral
+        libcurl
+        libfragmentzip
+        libimg4tool
+    )
+
+    target_link_libraries(futurerestore PRIVATE
+        z
+        zip
+        png16
+        crypto
+        ssl
+        "-lgeneral"
+        plist-2.0
+        fragmentzip
+        img4tool
+        tsschecker
+        idevicerestore
+        jssy
+        curl
+        imobiledevice-glue-1.0
+        imobiledevice-1.0
+        irecovery-1.0
+        usbmuxd-2.0
+        udev
+        pthread
+        bz2
+        lzma
+        brotlidec
+        brotlienc
+        brotlicommon
+    )
+
+    target_link_libraries(futurerestore PRIVATE
+        tsschecker
+        idevicerestore
+        ${DEPS_LIBRARIES}
+        jssy
+    )
 else()
     target_include_directories(futurerestore PRIVATE
             "${CMAKE_SOURCE_DIR}/dep_root/include")
