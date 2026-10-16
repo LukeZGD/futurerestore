@@ -23,10 +23,7 @@ if(NOT NO_PKGCFG)
             libgeneral
             libcurl
             libfragmentzip
-            libimg4tool
-            libinsn
-            liboffsetfinder64
-            libipatcher)
+            libimg4tool)
     target_include_directories(futurerestore PRIVATE "${DEPS_INCLUDE_DIRS}")
     target_link_directories(futurerestore PRIVATE "${DEPS_LIBRARY_DIRS}")
     target_link_libraries(futurerestore PRIVATE "${DEPS_LIBRARIES}" tsschecker idevicerestore)
@@ -48,10 +45,6 @@ else()
             fragmentzip
             img4tool
             common
-            xpwn
-            insn
-            offsetfinder64
-            ipatcher
             tsschecker
             idevicerestore
             jssy
@@ -81,10 +74,6 @@ elseif("${CMAKE_HOST_SYSTEM_NAME}" MATCHES "MSYS" OR "${CMAKE_HOST_SYSTEM_NAME}"
                 fragmentzip
                 img4tool
                 lzfse
-                ipatcher
-                offsetfinder64
-                insn
-                xpwn
                 common
                 png16
                 irecovery-1.0
@@ -118,7 +107,6 @@ if(NOT DEFINED VERSION_COMMIT_SHA)
 endif()
 execute_process(COMMAND cat version.txt WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}" OUTPUT_VARIABLE VERSION_RELEASE ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 add_definitions(
-        -DHAVE_LIBIPATCHER=1
         -DCUSTOM_LOGGING=<stdlib.h>
         -DVERSION_COMMIT_COUNT="${VERSION_COMMIT_COUNT}"
         -DVERSION_COMMIT_SHA="${VERSION_COMMIT_SHA}"
