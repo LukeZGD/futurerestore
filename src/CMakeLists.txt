@@ -28,8 +28,27 @@ if(NOT NO_PKGCFG)
         libimg4tool
     )
 
-    target_link_directories(futurerestore PRIVATE
-        ${DEPS_LIBRARY_DIRS}
+    target_link_libraries(futurerestore PRIVATE
+        z
+        zip
+        png16
+        crypto
+        ssl
+        general
+        plist-2.0
+        fragmentzip
+        img4tool
+        common
+        tsschecker
+        idevicerestore
+        jssy
+        curl
+        imobiledevice-glue-1.0
+        imobiledevice-1.0
+        irecovery-1.0
+        usbmuxd-2.0
+        udev
+        pthread
     )
 
     target_link_libraries(futurerestore PRIVATE
