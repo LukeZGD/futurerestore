@@ -58,8 +58,8 @@ static struct option longopts[] = {
         { "no-cache",                   no_argument,            nullptr, 'a' },
         { "skip-blob",                  no_argument,            nullptr, 'f' },
         { "skip-blob2",                 no_argument,            nullptr, 'l' },
-        { "skip-cryptex",               no_argument,            nullptr, 'n' },
 #endif
+        { "skip-cryptex",               no_argument,            nullptr, 'n' },
         { nullptr, 0, nullptr, 0 }
 };
 
