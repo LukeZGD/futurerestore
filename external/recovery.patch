@@ -1,4 +1,6 @@
-336a337,339
+115d114
+< 	irecv_init();
+336a336,338
 >         } else if(!strcmp(component, "RestoreSEP") && client->sepfwdatasize) {
 >             component_data = malloc(component_size = (unsigned int)client->sepfwdatasize);
 >             memcpy(component_data, client->sepfwdata, component_size);

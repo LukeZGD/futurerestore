@@ -215,6 +215,8 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Building futurerestore!"
     cd $FR_BASE
     cd ..
+    patch external/idevicerestore/src/dfu.c external/dfu.patch
+    patch external/idevicerestore/src/recovery.c external/recovery.patch
     ./build.sh
     mkdir -p bin/lib
     cp cmake-build-debug/src/futurerestore bin/futurerestore_$1
