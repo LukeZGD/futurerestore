@@ -283,6 +283,7 @@ int main_r(int argc, const char * argv[]) {
             case 'a': // long option: "no-cache";
                 flags |= FLAG_NO_CACHE;
                 break;
+#endif
             case 'f': // long option: "skip-blob";
                 flags |= FLAG_SKIP_BLOB;
                 break;
@@ -292,7 +293,6 @@ int main_r(int argc, const char * argv[]) {
             case 'n': // long option: "skip-cryptex";
                 flags |= FLAG_SKIP_CRYPTEX;
                 break;
-#endif
             case 'e': // long option: "exit-recovery"; can be called as short option
                 exitRecovery = true;
                 break;
