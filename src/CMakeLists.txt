@@ -28,20 +28,16 @@ if(NOT NO_PKGCFG)
         libimg4tool
     )
 
-    target_include_directories(futurerestore PRIVATE
-        /usr/local/include
-    )
-
     target_link_libraries(futurerestore PRIVATE
         z
         zip
         png16
         crypto
         ssl
-        img4tool
-        fragmentzip
-        general
+        "-lgeneral"
         plist-2.0
+        fragmentzip
+        img4tool
         tsschecker
         idevicerestore
         jssy
