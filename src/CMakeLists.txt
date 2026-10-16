@@ -38,7 +38,6 @@ if(NOT NO_PKGCFG)
         plist-2.0
         fragmentzip
         img4tool
-        common
         tsschecker
         idevicerestore
         jssy
