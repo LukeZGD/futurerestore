@@ -215,8 +215,7 @@ if [[ $OSTYPE == "linux"* ]]; then
     echo "Building futurerestore!"
     cd $FR_BASE
     cd ..
-    ./autogen.sh $ALT_CONF_ARGS $CC_ARGS LDFLAGS="$LD_ARGS" LIBS="-llzma -lbz2 -lzstd -lcrypto -lz -ldl"
-    make $JNUM
+    ./build.sh
     mkdir -p bin/lib
     cp cmake-build-debug/src/futurerestore bin/futurerestore_$1
     cp /usr/local/lib/libcrypto.so.35 /usr/local/lib/libssl.so.35 bin/lib/
