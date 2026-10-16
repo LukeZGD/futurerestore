@@ -48,7 +48,7 @@ if [[ $OSTYPE == "linux"* ]]; then
 
     echo "Downloading apt deps"
     sudo apt update
-    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libpng-dev libreadline-dev python3-dev autopoint libudev-dev
+    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libpng-dev libreadline-dev python3-dev autopoint libudev-dev libbrotli-dev
     sudo apt remove -y libssl-dev libzstd-dev || true # comment line for ssl3
     echo "Done"
 
