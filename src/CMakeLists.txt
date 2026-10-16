@@ -50,9 +50,6 @@ if(NOT NO_PKGCFG)
         pthread
         bz2
         lzma
-        brotlidec
-        brotlienc
-        brotlicommon
     )
 
     target_link_libraries(futurerestore PRIVATE
