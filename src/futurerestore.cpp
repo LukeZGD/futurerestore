@@ -1438,7 +1438,7 @@ void futurerestore::doRestore(const char *ipsw) {
                 0)//if pwnrecovery send all components decrypted, unless we're dealing with iOS 10
                 client->recovery_custom_component_function = get_custom_component;
         }
-    } else if (!_rerestoreiOS9 && !_skipBlob2) {
+    } else if (!_rerestoreiOS9 && !_skipIbec) {
 
         /* now we load the iBEC */
         retassure(!recovery_send_ibec(client, build_identity), "ERROR: Unable to send iBEC\n");
@@ -2590,7 +2590,7 @@ void futurerestore::downloadLatestFirmwareComponents() {
         downloadLatestBaobab();
     if (elemExists("Yonkers,PatchEpoch", manifeststr, getDeviceBoardNoCopy(), 0))
         downloadLatestYonkers();
-    if (elemExists("Cryptex1,SystemOS", manifeststr, getDeviceBoardNoCopy(), 0))
+    if (elemExists("Cryptex1,SystemOS", manifeststr, getDeviceBoardNoCopy(), 0) && !_skipCryptex)
         downloadLatestCryptex1();
     info("Finished downloading the latest firmware components!\n");
 }

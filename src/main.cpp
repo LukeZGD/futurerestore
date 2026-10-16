@@ -56,9 +56,10 @@ static struct option longopts[] = {
         { "serial",                     no_argument,            nullptr, '8' },
         { "boot-args",                  required_argument,      nullptr, '9' },
         { "no-cache",                   no_argument,            nullptr, 'a' },
-        { "skip-blob",                  no_argument,            nullptr, 'f' },
-        { "skip-blob2",                 no_argument,            nullptr, 'l' },
 #endif
+        { "skip-blob",                  no_argument,            nullptr, 'f' },
+        { "skip-ibec",                  no_argument,            nullptr, 'l' },
+        { "skip-cryptex",               no_argument,            nullptr, 'n' },
         { nullptr, 0, nullptr, 0 }
 };
 
@@ -83,7 +84,8 @@ static struct option longopts[] = {
 #define FLAG_CUSTOM_LATEST_OTA      1 << 18
 #define FLAG_NO_RSEP_FR             1 << 19
 #define FLAG_IGNORE_BB_FAIL         1 << 20
-#define FLAG_SKIP_BLOB2             1 << 21
+#define FLAG_SKIP_IBEC              1 << 21
+#define FLAG_SKIP_CRYPTEX           1 << 22
 
 bool manual = false;
 
@@ -189,7 +191,7 @@ int main_r(int argc, const char * argv[]) {
         return -1;
     }
 
-    while ((opt = getopt_long(argc, (char* const *)argv, "ht:b:p:s:m:c:g:ikwude0z123456789afjl", longopts, &optindex)) > 0) {
+    while ((opt = getopt_long(argc, (char* const *)argv, "ht:b:p:s:m:c:g:ikwude0z123456789afjln", longopts, &optindex)) > 0) {
         switch (opt) {
             case 'h': // long option: "help"; can be called as short option
                 cmd_help();
@@ -281,13 +283,16 @@ int main_r(int argc, const char * argv[]) {
             case 'a': // long option: "no-cache";
                 flags |= FLAG_NO_CACHE;
                 break;
+#endif
             case 'f': // long option: "skip-blob";
                 flags |= FLAG_SKIP_BLOB;
                 break;
-            case 'l': // long option: "skip-blob2";
-                flags |= FLAG_SKIP_BLOB2;
+            case 'l': // long option: "skip-ibec";
+                flags |= FLAG_SKIP_IBEC;
                 break;
-#endif
+            case 'n': // long option: "skip-cryptex";
+                flags |= FLAG_SKIP_CRYPTEX;
+                break;
             case 'e': // long option: "exit-recovery"; can be called as short option
                 exitRecovery = true;
                 break;
@@ -418,8 +423,11 @@ int main_r(int argc, const char * argv[]) {
         if(flags & FLAG_SKIP_BLOB) {
             client.skipBlobValidation();
         }
-        if(flags & FLAG_SKIP_BLOB2) {
-            client.skipBlobValidation2();
+        if(flags & FLAG_SKIP_IBEC) {
+            client.skipIbec();
+        }
+        if(flags & FLAG_SKIP_CRYPTEX) {
+            client.skipCryptex();
         }
         if(!(flags & FLAG_SET_NONCE)) {
             if (flags & FLAG_LATEST_SEP) {

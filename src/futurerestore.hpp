@@ -107,7 +107,8 @@ class futurerestore {
 
     bool _noCache = false;
     bool _skipBlob = false;
-    bool _skipBlob2 = false;
+    bool _skipIbec = false;
+    bool _skipCryptex = false;
 
     bool _enterPwnRecoveryRequested = false;
     bool _rerestoreiOS9 = false;
@@ -188,7 +189,8 @@ public:
     void setBootArgs(const char *boot_args){_boot_args = boot_args;};
     void disableCache(){_noCache = true;};
     void skipBlobValidation(){_skipBlob = true;};
-    void skipBlobValidation2(){_skipBlob = true; _skipBlob2 = true;};
+    void skipIbec(){_skipIbec = true;};
+    void skipCryptex(){_skipCryptex = true;};
 
     bool is32bit() const;
 
