@@ -188,7 +188,7 @@ if [[ $OSTYPE == "linux"* ]]; then
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     cd ..
 
-    curl -LO https://opensource.apple.com/tarballs/cctools/cctools-927.0.2.tar.gz
+    aria2c https://opensource.apple.com/tarballs/cctools/cctools-927.0.2.tar.gz
     mkdir cctools-tmp
     tar -xzf cctools-927.0.2.tar.gz -C cctools-tmp/
     sed -i "s_#include_//_g" cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
