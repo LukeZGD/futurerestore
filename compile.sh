@@ -48,7 +48,7 @@ if [[ $OSTYPE == "linux"* ]]; then
 
     echo "Downloading apt deps"
     sudo apt update
-    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libpng-dev libreadline-dev python3-dev autopoint libudev-dev libbrotli-dev
+    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libpng-dev libreadline-dev python3-dev autopoint libudev-dev libbrotli-dev clang
     sudo apt remove -y libssl-dev libzstd-dev || true # comment line for ssl3
     echo "Done"
 
@@ -178,6 +178,9 @@ if [[ $OSTYPE == "linux"* ]]; then
     make install
     make clean
 
+    export CC=clang
+    export CXX=clang++
+
     cd $FR_BASE
     echo "Building libinsn"
     cd libinsn
@@ -205,6 +208,9 @@ if [[ $OSTYPE == "linux"* ]]; then
     ./autogen.sh --disable-shared
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     cd ..
+
+    unset CC
+    unset CXX
 
     cd $FR_BASE
     zstd_ver=1.5.7
