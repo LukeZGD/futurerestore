@@ -19,7 +19,7 @@ if(NOT NO_PKGCFG)
         libssl
         libplist-2.0
         libimobiledevice-glue-1.0
-        libtatsu
+        libtatsu-1.0
         libimobiledevice-1.0
         libirecovery-1.0
         libusbmuxd-2.0

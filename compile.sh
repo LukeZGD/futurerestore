@@ -56,7 +56,7 @@ if [[ $OSTYPE == "linux"* ]]; then
     git clone --filter=blob:none https://github.com/lzfse/lzfse
     git clone --filter=blob:none https://github.com/libimobiledevice/libplist
     git clone --filter=blob:none https://github.com/libimobiledevice/libimobiledevice-glue
-    git clone --filter=blob:none https://github.com/libimobiledevice/libtatsu
+    git clone --filter=blob:none https://github.com/futurerestore/libtatsu
     git clone --filter=blob:none https://github.com/LukeZGD/libusbmuxd
     git clone --filter=blob:none https://github.com/LukeZGD/libimobiledevice
     git clone --filter=blob:none https://github.com/LukeZGD/libirecovery
@@ -207,7 +207,10 @@ if [[ $OSTYPE == "linux"* ]]; then
     cd $FR_BASE
     echo "Building libpatchfinder"
     cd libpatchfinder
-    ./autogen.sh --disable-shared
+    rm -rf autom4te.cache
+    mkdir -p m4
+    autoreconf -fiv
+    ./configure --disable-shared
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     cd ..
 
@@ -217,9 +220,6 @@ if [[ $OSTYPE == "linux"* ]]; then
     ./autogen.sh --disable-shared
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     cd ..
-
-    unset CC
-    unset CXX
 
     cd $FR_BASE
     zstd_ver=1.5.7
@@ -242,7 +242,7 @@ if [[ $OSTYPE == "linux"* ]]; then
     # patch external/idevicerestore/src/dfu.c external/dfu.patch
     # patch external/idevicerestore/src/recovery.c external/recovery2.patch
     ./build.sh
-    cp cmake-build-debug/src/futurerestore bin/futurerestore_$1
+    cp cmake-build-debug/src/futurerestore bin/futurerestore
     # mkdir -p bin/lib
     # cp /usr/local/lib/libcrypto.so.35 /usr/local/lib/libssl.so.35 bin/lib/
 
