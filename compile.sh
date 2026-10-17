@@ -48,7 +48,7 @@ if [[ $OSTYPE == "linux"* ]]; then
 
     echo "Downloading apt deps"
     sudo apt update
-    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libpng-dev libreadline-dev python3-dev autopoint libudev-dev libbrotli-dev
+    sudo apt install -y aria2 curl build-essential checkinstall git autoconf automake libtool-bin pkg-config cmake libusb-1.0-0-dev libpng-dev libreadline-dev python3-dev autopoint libudev-dev libbrotli-dev clang
     sudo apt remove -y libssl-dev libzstd-dev || true # comment line for ssl3
     echo "Done"
 
@@ -66,12 +66,11 @@ if [[ $OSTYPE == "linux"* ]]; then
     git clone --filter=blob:none https://github.com/curl/curl -b curl-7_65_3
     aria2c="aria2c -c -s 16 -x 16 -k 1M -j 1"
     $aria2c https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
-    if [[ $1 == "old" ]]; then
-        git clone --filter=blob:none --recursive https://github.com/LukeZGD/libipatcher
-        git clone --filter=blob:none https://github.com/LukeZGD/daibutsuCFW
-    elif [[ $1 == "new" ]]; then
-        git clone --filter=blob:none https://github.com/tihmstar/img4tool
-    fi
+    git clone --filter=blob:none --recursive https://github.com/Cryptiiiic/libipatcher
+    git clone --filter=blob:none https://github.com/LukeZGD/daibutsuCFW
+    git clone --filter=blob:none https://github.com/LukeZGD/img4tool
+    git clone --filter=blob:none https://github.com/LukeZGD/libinsn
+    git clone --filter=blob:none https://github.com/LukeZGD/libpatchfinder -b lof64
     git clone --filter=blob:none https://github.com/tihmstar/libgeneral
     git clone --filter=blob:none https://github.com/tihmstar/libfragmentzip
 
@@ -156,22 +155,6 @@ if [[ $OSTYPE == "linux"* ]]; then
     make $JNUM
     make $JNUM install
 
-    if [[ $1 == "old" ]]; then
-        aria2c https://github.com/LukeZGD/daibutsuCFW/releases/download/latest/xpwn_linux-$(uname -m).zip
-        unzip xpwn_linux-$(uname -m).zip -d .
-        cp bin/libxpwn.a bin/libcommon.a /usr/local/lib
-        cd $FR_BASE
-        cd daibutsuCFW/src/xpwn/include
-        cp -R * /usr/local/include
-
-        cd $FR_BASE
-        echo "Building libipatcher..."
-        cd libipatcher
-        ./autogen.sh --disable-shared
-        make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
-        cd ..
-    fi
-
     compdir=$FR_BASE
     instdir=/usr/local
     echo "Building libgeneral..."
@@ -188,14 +171,53 @@ if [[ $OSTYPE == "linux"* ]]; then
     make install
     make clean
 
-    if [[ $1 == "new" ]]; then
-        echo "Building img4tool..."
-        cd $compdir/img4tool
-        env LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"
-        make
-        make install
-        make clean
-    fi
+    echo "Building img4tool..."
+    cd $compdir/img4tool
+    env LDFLAGS="-L$instdir/lib" ./autogen.sh --enable-static --disable-shared --prefix="$instdir"
+    make
+    make install
+    make clean
+
+    export CC=clang
+    export CXX=clang++
+
+    cd $FR_BASE
+    echo "Building libinsn"
+    cd libinsn
+    ./autogen.sh --disable-shared
+    make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
+    cd ..
+
+    aria2c https://opensource.apple.com/tarballs/cctools/cctools-927.0.2.tar.gz
+    mkdir cctools-tmp
+    tar -xzf cctools-cctools-927.0.2.tar.gz -C cctools-tmp/
+    sed -i "s_#include_//_g" cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
+    sed -i -e "s=<stdint.h>=\n#include <stdint.h>\ntypedef int integer_t;\ntypedef integer_t cpu_type_t;\ntypedef integer_t cpu_subtype_t;\ntypedef integer_t cpu_threadtype_t;\ntypedef int vm_prot_t;=g" cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
+    cp -r cctools-tmp/*cctools-927.0.2/include/* /usr/local/include/
+
+    cd $FR_BASE
+    echo "Building libpatchfinder"
+    cd libpatchfinder
+    ./autogen.sh --disable-shared
+    make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
+    cd ..
+
+    aria2c https://github.com/LukeZGD/daibutsuCFW/releases/download/latest/xpwn_linux-$(uname -m).zip
+    unzip xpwn_linux-$(uname -m).zip -d .
+    cp bin/libxpwn.a bin/libcommon.a /usr/local/lib
+    cd $FR_BASE
+    cd daibutsuCFW/src/xpwn/include
+    cp -R * /usr/local/include
+
+    cd $FR_BASE
+    echo "Building libipatcher..."
+    cd libipatcher
+    ./autogen.sh --disable-shared
+    make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
+    cd ..
+
+    unset CC
+    unset CXX
 
     cd $FR_BASE
     zstd_ver=1.5.7
@@ -216,11 +238,11 @@ if [[ $OSTYPE == "linux"* ]]; then
     cd $FR_BASE
     cd ..
     patch external/idevicerestore/src/dfu.c external/dfu.patch
-    patch external/idevicerestore/src/recovery.c external/recovery.patch
+    patch external/idevicerestore/src/recovery.c external/recovery2.patch
     ./build.sh
-    mkdir -p bin/lib
     cp cmake-build-debug/src/futurerestore bin/futurerestore_$1
-    cp /usr/local/lib/libcrypto.so.35 /usr/local/lib/libssl.so.35 bin/lib/
+    # mkdir -p bin/lib
+    # cp /usr/local/lib/libcrypto.so.35 /usr/local/lib/libssl.so.35 bin/lib/
 
 elif [[ $OSTYPE == "msys" ]]; then
     platform="win"
