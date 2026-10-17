@@ -41,6 +41,7 @@ if(NOT NO_PKGCFG)
         plist-2.0
         fragmentzip
         img4tool
+        common
         xpwn
         insn
         offsetfinder64
