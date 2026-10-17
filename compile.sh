@@ -188,12 +188,14 @@ if [[ $OSTYPE == "linux"* ]]; then
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     cd ..
 
-    aria2c https://opensource.apple.com/tarballs/cctools/cctools-927.0.2.tar.gz
-    mkdir cctools-tmp
-    tar -xzf cctools-cctools-927.0.2.tar.gz -C cctools-tmp/
-    sed -i "s_#include_//_g" cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
-    sed -i -e "s=<stdint.h>=\n#include <stdint.h>\ntypedef int integer_t;\ntypedef integer_t cpu_type_t;\ntypedef integer_t cpu_subtype_t;\ntypedef integer_t cpu_threadtype_t;\ntypedef int vm_prot_t;=g" cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
-    cp -r cctools-tmp/*cctools-927.0.2/include/* /usr/local/include/
+    wget https://github.com/apple-oss-distributions/cctools/archive/refs/tags/cctools-973.0.1.tar.gz -O cctools.tar.gz
+    mkdir tmp
+    tar -xvzf cctools.tar.gz -C tmp
+    mv tmp/cctoo* tmp/cctools
+    sed -i 's_#include_//_g' tmp/cctools/include/mach-o/loader.h
+    sed -i -e 's=<stdint.h>=\n#include <stdint.h>\ntypedef int integer_t;\ntypedef integer_t cpu_type_t;\ntypedef integer_t cpu_subtype_t;\ntypedef integer_t cpu_threadtype_t;\ntypedef int vm_prot_t;=g' tmp/cctools/include/mach-o/loader.h
+    cp -r tmp/cctools/include/* /usr/local/include/
+    rm -rf tmp cctools.tar.gz
 
     cd $FR_BASE
     echo "Building libpatchfinder"
@@ -216,9 +218,6 @@ if [[ $OSTYPE == "linux"* ]]; then
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     cd ..
 
-    unset CC
-    unset CXX
-
     cd $FR_BASE
     zstd_ver=1.5.7
     aria2c https://github.com/facebook/zstd/releases/download/v$zstd_ver/zstd-$zstd_ver.tar.gz
@@ -240,7 +239,7 @@ if [[ $OSTYPE == "linux"* ]]; then
     patch external/idevicerestore/src/dfu.c external/dfu.patch
     patch external/idevicerestore/src/recovery.c external/recovery2.patch
     ./build.sh
-    cp cmake-build-debug/src/futurerestore bin/futurerestore_$1
+    cp cmake-build-debug/src/futurerestore bin/futurerestore
     # mkdir -p bin/lib
     # cp /usr/local/lib/libcrypto.so.35 /usr/local/lib/libssl.so.35 bin/lib/
 
