@@ -41,8 +41,8 @@ if(NOT NO_PKGCFG)
         plist-2.0
         fragmentzip
         img4tool
-        common
-        xpwn
+        /usr/local/lib/libcommon.a
+        /usr/local/lib/libxpwn.a
         insn
         offsetfinder64
         ipatcher
