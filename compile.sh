@@ -216,9 +216,6 @@ if [[ $OSTYPE == "linux"* ]]; then
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     cd ..
 
-    unset CC
-    unset CXX
-
     cd $FR_BASE
     zstd_ver=1.5.7
     aria2c https://github.com/facebook/zstd/releases/download/v$zstd_ver/zstd-$zstd_ver.tar.gz
