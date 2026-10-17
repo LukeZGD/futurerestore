@@ -66,7 +66,7 @@ if [[ $OSTYPE == "linux"* ]]; then
     git clone --filter=blob:none https://github.com/curl/curl -b curl-7_65_3
     aria2c="aria2c -c -s 16 -x 16 -k 1M -j 1"
     $aria2c https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
-    git clone --filter=blob:none --recursive https://github.com/LukeZGD/libipatcher
+    git clone --filter=blob:none --recursive https://github.com/Cryptiiiic/libipatcher
     git clone --filter=blob:none https://github.com/LukeZGD/daibutsuCFW
     git clone --filter=blob:none https://github.com/LukeZGD/img4tool
     git clone --filter=blob:none https://github.com/LukeZGD/libinsn
@@ -215,6 +215,9 @@ if [[ $OSTYPE == "linux"* ]]; then
     ./autogen.sh --disable-shared
     make $JNUM install LDFLAGS="$BEGIN_LDFLAGS"
     cd ..
+
+    unset CC
+    unset CXX
 
     cd $FR_BASE
     zstd_ver=1.5.7
