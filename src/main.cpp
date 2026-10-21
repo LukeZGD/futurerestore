@@ -58,8 +58,9 @@ static struct option longopts[] = {
         { "boot-args",                  required_argument,      nullptr, '9' },
         { "no-cache",                   no_argument,            nullptr, 'a' },
         { "skip-blob",                  no_argument,            nullptr, 'f' },
-        { "skip-blob2",                 no_argument,            nullptr, 'l' },
 #endif
+        { "skip-ibec",                  no_argument,            nullptr, 'l' },
+        { "ignore-bb-fail",             no_argument,            nullptr, 'o' },
         { nullptr, 0, nullptr, 0 }
 };
 
@@ -84,7 +85,7 @@ static struct option longopts[] = {
 #define FLAG_CUSTOM_LATEST_OTA      1 << 18
 #define FLAG_NO_RSEP_FR             1 << 19
 #define FLAG_IGNORE_BB_FAIL         1 << 20
-#define FLAG_SKIP_BLOB2             1 << 21
+#define FLAG_SKIP_IBEC              1 << 21
 
 void cmd_help() {
     info("Usage: futurerestore [OPTIONS] iPSW\n");
@@ -116,6 +117,9 @@ void cmd_help() {
     info("  -a, --no-cache\t\t\tDisable cached patched iBSS/iBEC(requires use-pwndfu)\n");
     info("  -f, --skip-blob\t\t\tSkip SHSH blob validation(PROCEED WITH CAUTION)(requires use-pwndfu)\n");
 #endif
+
+    info("  -l, --skip-ibec\t\t\tSkip sending iBEC for device in pwned recovery mode\n");
+    info("  -o, --ignore-bb-fail\t\tIgnore baseband errors (useful for devices with dead baseband)\n");
 
     info("\nOptions for SEP:\n");
     info("  -0, --latest-sep\t\t\tUse latest signed SEP instead of manually specifying one\n");
@@ -178,7 +182,7 @@ int main_r(int argc, const char * argv[]) {
         return -1;
     }
 
-    while ((opt = getopt_long(argc, (char* const *)argv, "ht:b:p:s:m:c:g:ikwude0z123456789afjl", longopts, &optindex)) > 0) {
+    while ((opt = getopt_long(argc, (char* const *)argv, "ht:b:p:s:m:c:g:ikwude0z123456789afjlo", longopts, &optindex)) > 0) {
         switch (opt) {
             case 'h': // long option: "help"; can be called as short option
                 cmd_help();
@@ -269,8 +273,11 @@ int main_r(int argc, const char * argv[]) {
             case 'f': // long option: "skip-blob";
                 flags |= FLAG_SKIP_BLOB;
                 break;
-            case 'l': // long option: "skip-blob2";
-                flags |= FLAG_SKIP_BLOB2;
+            case 'l': // long option: "skip-ibec";
+                flags |= FLAG_SKIP_IBEC;
+                break;
+            case 'o': // long option: "ignore-bb-fail";
+                flags |= FLAG_IGNORE_BB_FAIL;
                 break;
 #endif
             case 'e': // long option: "exit-recovery"; can be called as short option
@@ -409,8 +416,8 @@ int main_r(int argc, const char * argv[]) {
         if(flags & FLAG_SKIP_BLOB) {
             client.skipBlobValidation();
         }
-        if(flags & FLAG_SKIP_BLOB2) {
-            client.skipBlobValidation2();
+        if(flags & FLAG_SKIP_IBEC) {
+            client.skipIbec();
         }
         if(!(flags & FLAG_SET_NONCE)) {
             if (flags & FLAG_LATEST_SEP) {
