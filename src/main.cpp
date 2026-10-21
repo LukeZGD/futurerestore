@@ -56,10 +56,11 @@ static struct option longopts[] = {
         { "serial",                     no_argument,            nullptr, '8' },
         { "boot-args",                  required_argument,      nullptr, '9' },
         { "no-cache",                   no_argument,            nullptr, 'a' },
-#endif
         { "skip-blob",                  no_argument,            nullptr, 'f' },
+#endif
         { "skip-ibec",                  no_argument,            nullptr, 'l' },
         { "skip-cryptex",               no_argument,            nullptr, 'n' },
+        { "ignore-bb-fail",             no_argument,            nullptr, 'o' },
         { nullptr, 0, nullptr, 0 }
 };
 
@@ -117,6 +118,10 @@ void cmd_help(){
     printf("  -a, --no-cache\t\t\tDisable cached patched iBSS/iBEC(requires use-pwndfu)\n");
     printf("  -f, --skip-blob\t\t\tSkip SHSH blob validation(PROCEED WITH CAUTION)(requires use-pwndfu)\n");
 #endif
+
+    printf("  -l, --skip-ibec\t\t\tSkip sending iBEC for device in pwned recovery mode\n");
+    printf("  -n, --skip-cryptex\t\t\tSkip downloading Cryptex1 components\n");
+    printf("  -o, --ignore-bb-fail\t\tIgnore baseband errors (useful for devices with dead baseband)\n");
 
     printf("\nOptions for SEP:\n");
     printf("  -0, --latest-sep\t\t\tUse latest signed SEP instead of manually specifying one\n");
@@ -179,7 +184,7 @@ int main_r(int argc, const char * argv[]) {
         return -1;
     }
 
-    while ((opt = getopt_long(argc, (char* const *)argv, "ht:b:p:s:m:c:g:ikwude0z123456789afjln", longopts, &optindex)) > 0) {
+    while ((opt = getopt_long(argc, (char* const *)argv, "ht:b:p:s:m:c:g:ikwude0z123456789afjlno", longopts, &optindex)) > 0) {
         switch (opt) {
             case 'h': // long option: "help"; can be called as short option
                 cmd_help();
@@ -267,15 +272,18 @@ int main_r(int argc, const char * argv[]) {
             case 'a': // long option: "no-cache";
                 flags |= FLAG_NO_CACHE;
                 break;
-#endif
             case 'f': // long option: "skip-blob";
                 flags |= FLAG_SKIP_BLOB;
                 break;
+#endif
             case 'l': // long option: "skip-ibec";
                 flags |= FLAG_SKIP_IBEC;
                 break;
             case 'n': // long option: "skip-cryptex";
                 flags |= FLAG_SKIP_CRYPTEX;
+                break;
+            case 'o': // long option: "ignore-bb-fail";
+                flags |= FLAG_IGNORE_BB_FAIL;
                 break;
             case 'e': // long option: "exit-recovery"; can be called as short option
                 exitRecovery = true;
