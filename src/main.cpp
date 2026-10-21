@@ -86,7 +86,6 @@ static struct option longopts[] = {
 #define FLAG_IGNORE_BB_FAIL         1 << 20
 #define FLAG_SKIP_BLOB2             1 << 21
 
-bool manual = false;
 void cmd_help() {
     info("Usage: futurerestore [OPTIONS] iPSW\n");
     info("Allows restoring to non-matching firmware with custom SEP+baseband\n");
@@ -120,18 +119,14 @@ void cmd_help() {
 
     info("\nOptions for SEP:\n");
     info("  -0, --latest-sep\t\t\tUse latest signed SEP instead of manually specifying one\n");
-    if(manual) {
-        info("  -s, --sep PATH\t\t\tSEP to be flashed\n");
-        info("  -m, --sep-manifest PATH\t\tBuildManifest for requesting SEP ticket\n");
-    }
+    info("  -s, --sep PATH\t\t\tSEP to be flashed\n");
+    info("  -m, --sep-manifest PATH\t\tBuildManifest for requesting SEP ticket\n");
     info("  -j, --no-rsep\t\t\t\tChoose not to send Restore Mode SEP firmware command\n");
 
     info("\nOptions for baseband:\n");
     info("  -1, --latest-baseband\t\t\tUse latest signed baseband instead of manually specifying one\n");
-    if(manual) {
-        info("  -b, --baseband PATH\t\t\tBaseband to be flashed\n");
-        info("  -p, --baseband-manifest PATH\t\tBuildManifest for requesting baseband ticket\n");
-    }
+    info("  -b, --baseband PATH\t\t\tBaseband to be flashed\n");
+    info("  -p, --baseband-manifest PATH\t\tBuildManifest for requesting baseband ticket\n");
     info("  -2, --no-baseband\t\t\tSkip checks and don't flash baseband\n");
     info("                   \t\t\tOnly use this for device without a baseband (eg. iPod touch or some Wi-Fi only iPads)\n\n");
 }
@@ -178,12 +173,6 @@ int main_r(int argc, const char * argv[]) {
     t_devicevals devVals = {nullptr};
     t_iosVersion versVals = {nullptr};
 
-    char *legacy = std::getenv("FUTURERESTORE_I_SOLEMNLY_SWEAR_THAT_I_AM_UP_TO_NO_GOOD");
-    manual = legacy != nullptr;
-    if(manual) {
-        info("WARNING: User specified to enable Deprecated/Legacy options, at risk of boot loop!\n");
-    }
-
     if (argc == 1){
         cmd_help();
         return -1;
@@ -199,19 +188,15 @@ int main_r(int argc, const char * argv[]) {
                 apticketPaths.push_back(optarg);
                 break;
             case 'b': // long option: "baseband"; can be called as short option
-                retassure(manual, "--baseband is Deprecated! Please switch to --custom-latest or --custom-latest-beta.");
                 basebandPath = optarg;
                 break;
             case 'p': // long option: "baseband-manifest"; can be called as short option
-                retassure(manual, "--baseband-manifest is Deprecated! Please switch to --custom-latest or --custom-latest-beta.");
                 basebandManifestPath = optarg;
                 break;
             case 's': // long option: "sep"; can be called as short option
-                retassure(manual, "--sep is Deprecated! Please switch to --custom-latest or --custom-latest-beta.");
                 sepPath = optarg;
                 break;
             case 'm': // long option: "sep-manifest"; can be called as short option
-                retassure(manual, "--sep-manifest is Deprecated! Please switch to --custom-latest or --custom-latest-beta.");
                 sepManifestPath = optarg;
                 break;
             case 'w': // long option: "wait"; can be called as short option
@@ -431,15 +416,12 @@ int main_r(int argc, const char * argv[]) {
             if (flags & FLAG_LATEST_SEP) {
                 info("User specified to use latest signed SEP\n");
                 client.downloadLatestSep();
-            } else if (!client.is32bit() && manual) {
+            } else if (!client.is32bit()) {
                 client.setSepPath(sepPath);
                 client.setSepManifestPath(sepManifestPath);
                 client.loadSep(sepPath);
                 client.loadSepManifest(sepManifestPath);
-            } else if (!client.is32bit() && !manual) {
-              err = -__LINE__;
-              error("Fail code=%d\n",err);
-              goto error;
+                info("Did set SEP path and firmware\n");
             }
         }
         if(flags & FLAG_IGNORE_BB_FAIL) {
@@ -457,31 +439,18 @@ int main_r(int argc, const char * argv[]) {
             }
         }
         if (flags & FLAG_NO_BASEBAND){
-            info("\nWARNING: user specified is not to flash a baseband. This can make the restore fail if the device needs a baseband!\n");
-            info("\nIf you added this flag by mistake, you can press CTRL-C now to cancel\n");
-            int c = 10;
-            info("Continuing restore in ");
-            while (c) {
-                info("%d ",c--);
-                fflush(stdout);
-                sleep(1);
-            }
-            info("");
+            info("\nUser specified not to flash a baseband\n");
         }else{
             if(!(flags & FLAG_SET_NONCE)) {
                 if (flags & FLAG_LATEST_BASEBAND) {
                     info("User specified to use latest signed baseband\n");
                     client.downloadLatestBaseband();
-                } else if(manual) {
+                } else {
                     client.setBasebandPath(basebandPath);
                     client.setBasebandManifestPath(basebandManifestPath);
                     client.loadBaseband(basebandPath);
                     client.loadBasebandManifest(basebandManifestPath);
-                    info("Did set SEP and baseband path and firmware\n");
-                } else if(!manual) {
-                  err = -__LINE__;
-                  error("Fail code=%d\n", err);
-                  goto error;
+                    info("Did set baseband path and firmware\n");
                 }
             }
 
